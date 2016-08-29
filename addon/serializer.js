@@ -31,7 +31,6 @@ class Serializer {
    * @public
    */
   serialize(response, request={}) {
-    // console.log('serialize mirage', this, this.embed);
     if (this.embed) {
       let json;
 
@@ -332,10 +331,12 @@ class Serializer {
     }
 
     // Traverse this model's relationships
+    //debugger;
     this._valueForInclude(this, request)
     .map(key => model[camelize(key)])
     .filter(Boolean)
     .forEach(relationship => {
+      //debugger;
       let relatedModels = this.isModel(relationship) ? [relationship] : relationship.models;
 
       relatedModels.forEach(relatedModel => {

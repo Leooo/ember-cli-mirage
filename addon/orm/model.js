@@ -95,7 +95,11 @@ class Model {
      }
 
      Object.keys(attrs).forEach(function(attr) {
-       this.attrs[attr] = this[attr] = attrs[attr];
+       // https://github.com/samselikoff/ember-cli-mirage/pull/846
+       this.attrs[attr]= attrs[attr];
+       // debugger;
+       this._definePlainAttribute(attr);
+       this[attr] = attrs[attr];
      }, this);
 
      this.save();
