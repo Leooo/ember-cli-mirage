@@ -256,6 +256,7 @@ class Model {
 
     // Define the getter/setter
     Object.defineProperty(this, attr, {
+      configurable: true,
       get() {
         return this.attrs[attr];
       },
