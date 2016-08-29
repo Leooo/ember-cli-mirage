@@ -341,22 +341,27 @@ class Model {
     rels.forEach((rel) => {
       rel.destroy();
     });
+    this[`${relName}s`] = [];
+    this.save();
     return this;
   }
 
   hasMulti(relName) { // exactly two
     relName = relName.singularize();
-    let rels = this[`${relName}s`].models;
-    let initialNumber = rels.length;
+    let rels = this[`${relName}s`].models,
+      initialNumber = rels.length;
     for (let i = initialNumber; i < 2; i++) {
       // let rel = this[`create${relName.capitalize()}`]();
       let assoc = this.hasManyAssociations[relName.pluralize()];
       let { modelName } = assoc;
       let inverseRelName = assoc.opts.inverse || this.modelName;
+      // let inverseRelNameKey = assoc.getForeignKey();
       let hash = {};
       hash[`${inverseRelName.camelize()}Id`] = this.id;
-      server.create(modelName, hash);
+      rels.push(server.create(modelName, hash));
     }
+    this[`${relName}s`] = rels;
+    this.save();
     return this[`${relName}s`].models;
   }
 
@@ -389,10 +394,13 @@ class Model {
       let assoc = this.hasManyAssociations[relName.pluralize()];
       let { modelName } = assoc;
       let inverseRelName = assoc.opts.inverse || this.modelName;
+      // let inverseRelNameKey = assoc.getForeignKey();
       let hash = {};
       hash[`${inverseRelName.camelize()}Id`] = this.id;
       rel = server.create(modelName, hash);
     }
+    this[`${relName}s`] = [rel];
+    this.save();
     return rel;
   }
   hasOneOfOne(relName) {

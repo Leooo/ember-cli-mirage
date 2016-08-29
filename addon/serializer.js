@@ -320,7 +320,6 @@ class Serializer {
    */
   _serializeRelationshipsFor(model, request, topLevelIsArray = false, allAttrs = {}, root = null) {
     let relationshipNames = this._getRelationshipNames(request);
-
     relationshipNames
     .map((relationshipName) => this._getRelated(model, relationshipName))
     .filter(Boolean)
@@ -353,7 +352,6 @@ class Serializer {
     this._augmentAlreadySerialized(model);
     let modelAttrs = this._attrsForModel(model, request, false, true);
     let key = this._keyForModelOrCollection(model);
-
     if (topLevelIsArray) {
       let serializer = this.serializerFor(model.modelName);
       key = root ? root : serializer.keyForRelationship(key);
