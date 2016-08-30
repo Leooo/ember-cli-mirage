@@ -331,6 +331,7 @@ class Model {
       rel.destroy();
     }
     this[relName] = null;
+    this.save();
     return this;
   }
   hasNoOfMany(relName) {
