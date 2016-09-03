@@ -96,8 +96,6 @@ class Model {
 
      Object.keys(attrs).forEach(function(attr) {
        // https://github.com/samselikoff/ember-cli-mirage/pull/846
-       this.attrs[attr]= attrs[attr];
-       // debugger;
        this._definePlainAttribute(attr);
        this[attr] = attrs[attr];
      }, this);
@@ -126,6 +124,11 @@ class Model {
   * @public
   */
 
+  /**
+   * Destroys the db record
+   * @method destroy
+   * @public
+   */
   destroy() {
     this._beforeDestroy();
     let collection = toCollectionName(this.modelName);
@@ -245,9 +248,6 @@ class Model {
    * @private
    */
   _definePlainAttribute(attr) {
-    if (this[attr] !== undefined) {
-      return;
-    }
 
     // Ensure the attribute is on the attrs hash
     if (!this.attrs.hasOwnProperty(attr)) {
