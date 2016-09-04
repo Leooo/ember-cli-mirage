@@ -347,16 +347,17 @@ class Model {
     return this;
   }
 
-  hasMulti(relName) { // exactly two
+  hasMulti(relName, nb) {
     relName = relName.singularize();
+    nb = nb || 2;
     let rels = this[`${relName}s`].models,
       initialNumber = rels.length;
-    for (let i = initialNumber; i < 2; i++) {
-      // let rel = this[`create${relName.capitalize()}`]();
-      let assoc = this.hasManyAssociations[relName.pluralize()];
-      let { modelName } = assoc;
-      let inverseRelName = assoc.opts.inverse || this.modelName;
-      // let inverseRelNameKey = assoc.getForeignKey();
+    // let rel = this[`create${relName.capitalize()}`]();
+    let assoc = this.hasManyAssociations[relName.pluralize()];
+    let { modelName } = assoc;
+    let inverseRelName = assoc.opts.inverse || this.modelName;
+    // let inverseRelNameKey = assoc.getForeignKey();
+    for (let i = initialNumber; i < nb; i++) {
       let hash = {};
       hash[`${inverseRelName.camelize()}Id`] = this.id;
       rels.push(server.create(modelName, hash));
