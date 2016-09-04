@@ -249,6 +249,12 @@ class Model {
    */
   _definePlainAttribute(attr) {
 
+    // Ensure the property hasn't already been defined
+    let existingProperty = Object.getOwnPropertyDescriptor(this, attr);
+    if (existingProperty && existingProperty.get) {
+      return;
+    }
+
     // Ensure the attribute is on the attrs hash
     if (!this.attrs.hasOwnProperty(attr)) {
       this.attrs[attr] = null;
@@ -256,7 +262,6 @@ class Model {
 
     // Define the getter/setter
     Object.defineProperty(this, attr, {
-      configurable: true,
       get() {
         return this.attrs[attr];
       },
