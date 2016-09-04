@@ -48,7 +48,7 @@ class Serializer {
     }
   }
 
-  oldSerialize(response, request) {
+  oldSerialize(response/*, request*/) {
     // console.log('oldSerialize', response, response instanceof Model);
     if (response instanceof Model) {
       return this._oldAttrsForModel(response);
@@ -318,7 +318,7 @@ class Serializer {
    * @param request
    * @private
    */
-  _serializeRelationshipsFor(model, request, topLevelIsArray = false, allAttrs = {}, root = null) {
+  _serializeRelationshipsFor(model, request, topLevelIsArray = false, allAttrs = {}/*, root = null*/) {
     let relationshipNames = this._getRelationshipNames(request);
     relationshipNames
     .map((relationshipName) => this._getRelated(model, relationshipName))
