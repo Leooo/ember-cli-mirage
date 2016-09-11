@@ -452,6 +452,7 @@ class Serializer {
       }
 
       return attrs;
+
     }, {});
   }
 

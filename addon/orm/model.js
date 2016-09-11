@@ -343,20 +343,19 @@ class Model {
   hasNoOfMany(relName) {
     relName = relName.singularize();
     // TODO: create a general deleteXX method for hasMany
-    let rels = this[`${relName}s`].models;
-    this[`${relName}s`] = [];
+    let rels = this[`${relName.pluralize()}`].models;
+    this[`${relName.pluralize()}`] = [];
     rels.forEach((rel) => {
       rel.destroy();
     });
-    this[`${relName}s`] = [];
-    this.save();
+    this[`${relName.pluralize()}`] = [];
     return this;
   }
 
   hasMulti(relName, nb) {
     relName = relName.singularize();
     nb = nb || 2;
-    let rels = this[`${relName}s`].models,
+    let rels = this[`${relName.pluralize()}`].models,
       initialNumber = rels.length;
     // let rel = this[`create${relName.capitalize()}`]();
     let assoc = this.hasManyAssociations[relName.pluralize()];
@@ -368,9 +367,9 @@ class Model {
       hash[`${inverseRelName.camelize()}Id`] = this.id;
       rels.push(server.create(modelName, hash));
     }
-    this[`${relName}s`] = rels;
+    this[`${relName.pluralize()}`] = rels;
     this.save();
-    return this[`${relName}s`].models;
+    return this[`${relName.pluralize()}`].models;
   }
 
   hasOne(relName, attrs) { // exactly one
@@ -386,8 +385,11 @@ class Model {
   }
   hasOneOfMany(relName) {
     relName = relName.singularize();
+    if (!this.hasManyAssociations[relName.pluralize()]) {
+      console.error(`can not find hasManyAssociations with name ${relName.pluralize()} in ${this.modelName} model`);
+    }
     // TODO: create a general deleteXX method for hasMany
-    let rels = this[`${relName}s`].models;
+    let rels = this[`${relName.pluralize()}`].models;
     let rel;
     let { length } = rels;
     if (length) {
@@ -396,7 +398,7 @@ class Model {
         rels[i].destroy();
       }
       if (length > 1) {
-        this[`${relName}s`] = [rel];
+        this[`${relName.pluralize()}`] = [rel];
       }
     } else {
       let assoc = this.hasManyAssociations[relName.pluralize()];
@@ -407,12 +409,15 @@ class Model {
       hash[`${inverseRelName.camelize()}Id`] = this.id;
       rel = server.create(modelName, hash);
     }
-    this[`${relName}s`] = [rel];
+    this[`${relName.pluralize()}`] = [rel];
     this.save();
     return rel;
   }
   hasOneOfOne(relName) {
     relName = relName.singularize();
+    if (!this.belongsToAssociations[relName]) {
+      console.error(`can not find belongsToAssociation with name ${relName} in ${this.modelName} model`);
+    }
     let rel = this[relName];
     if (!rel) {
       let hash = {};
