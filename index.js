@@ -28,22 +28,24 @@ module.exports = {
 
     this.app = app;
     this.addonConfig = this.app.project.config(app.env)['ember-cli-mirage'] || {};
-    this.addonBuildConfig = this.app.options['ember-cli-mirage'] || {};
-
+    this.addonBuildConfig = (this.app.options && this.app.options['ember-cli-mirage']) || {};
     // Call super after initializing config so we can use _shouldIncludeFiles for the node assets
     this._super.included.apply(this, arguments);
-
+    console.log('this.addonConfig', this.addonConfig);
+    console.log('this.addonBuildConfig', this.addonBuildConfig);
     if (this.addonBuildConfig['directory']) {
       this.mirageDirectory = this.addonBuildConfig['directory'];
     } else if (this.addonConfig['directory']) {
       this.mirageDirectory = this.addonConfig['directory'];
     } else if (app.project.pkg['ember-addon'] && !app.project.pkg['ember-addon'].paths) {
+      console.log('is there');
       this.mirageDirectory = path.resolve(app.project.root, path.join('tests', 'dummy', 'mirage'));
     } else {
       this.mirageDirectory = path.join(this.app.project.root, '/mirage');
     }
 
     if (this._shouldIncludeFiles()) {
+      console.log('_shouldIncludeFiles');
       app.import('vendor/ember-cli-mirage/pretender-shim.js', {
         type: 'vendor',
         exports: { 'pretender': ['default'] }
@@ -90,6 +92,7 @@ module.exports = {
 
   treeForApp: function(appTree) {
     var trees = [ appTree ];
+    console.log('mirageFilesTree', this.mirageDirectory);
     var mirageFilesTree = new Funnel(this.mirageDirectory, {
       destDir: 'mirage'
     });
@@ -112,6 +115,9 @@ module.exports = {
                       'production environment.');
     }
     return enabledInProd || (this.app.env !== 'production' && explicitExcludeFiles !== true);
+  },
+  isDevelopingAddon: function () {
+    return true;
   }
 };
 

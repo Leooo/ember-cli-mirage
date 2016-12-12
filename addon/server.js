@@ -54,6 +54,14 @@ function createPretender(server) {
   });
 }
 
+function patchPretender(pretender) { // according to samselikoff/ember-cli-mirage/issues/509
+  let noopArray = { push: function(){} };
+  pretender.handledRequests = noopArray;
+  pretender.passthroughRequests = noopArray;
+  pretender.unhandledRequests = noopArray;
+  return pretender;
+}
+
 const defaultRouteOptions = {
   coalesce: false,
   timing: undefined
@@ -140,7 +148,7 @@ export default class Server {
     let hasFactories = this._hasModulesOfType(config, 'factories');
     let hasDefaultScenario = config.scenarios && config.scenarios.hasOwnProperty('default');
 
-    this.pretender = this.pretender || createPretender(this);
+    this.pretender = this.pretender || patchPretender(createPretender(this));
 
     if (config.baseConfig) {
       this.loadConfig(config.baseConfig);
