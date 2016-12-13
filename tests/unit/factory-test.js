@@ -106,6 +106,22 @@ test('it can reuse dynamic properties', function(assert) {
   assert.deepEqual(baz2, { foo: 10, bar: 20 });
 });
 
+test('it can have dynamic properties that depend on another', function(assert) {
+  let BazFactory = Mirage.Factory.extend({
+    name() {
+      return 'foo';
+    },
+    bar() {
+      return this.name.substr(1);
+    }
+  });
+
+  let b = new BazFactory();
+  let baz1 = b.build(1);
+
+  assert.deepEqual(baz1, { name: 'foo', bar: 'oo' });
+});
+
 test('it can reference properties out of order', function(assert) {
   let BazFactory = Mirage.Factory.extend({
     bar() {
@@ -239,22 +255,30 @@ test('#build skips invoking `afterCreate`', function(assert) {
   );
 });
 
-test('extractAfterCreateCallbacks returns all afterCreate callbacks from factory', function(assert) {
+test('extractAfterCreateCallbacks returns all afterCreate callbacks from factory with the base one being first', function(assert) {
   let PostFactory = Mirage.Factory.extend({
     published: trait({
-      afterCreate() {}
+      afterCreate() {
+        return 'from published';
+      }
     }),
 
     withComments: trait({
-      afterCreate() {}
+      afterCreate() {
+        return 'from withComments';
+      }
     }),
 
     otherTrait: trait({}),
 
-    afterCreate() {}
+    afterCreate() {
+      return 'from base';
+    }
   });
 
-  assert.equal(PostFactory.extractAfterCreateCallbacks().length, 3);
+  let callbacks = PostFactory.extractAfterCreateCallbacks();
+  assert.equal(callbacks.length, 3);
+  assert.deepEqual(callbacks.map((cb) => cb()), ['from base','from published', 'from withComments']);
 });
 
 test('extractAfterCreateCallbacks filters traits from which the afterCreate callbacks will be extracted from', function(assert) {
@@ -274,32 +298,32 @@ test('extractAfterCreateCallbacks filters traits from which the afterCreate call
     otherTrait: trait({}),
 
     afterCreate() {
-      return 'from attrs';
+      return 'from base';
     }
   });
 
   assert.equal(PostFactory.extractAfterCreateCallbacks({ traits: [] }).length, 1);
   assert.deepEqual(
     PostFactory.extractAfterCreateCallbacks({ traits: [] }).map((cb) => cb()),
-    ['from attrs']
+    ['from base']
   );
 
   assert.equal(PostFactory.extractAfterCreateCallbacks({ traits: ['withComments'] }).length, 2);
   assert.deepEqual(
     PostFactory.extractAfterCreateCallbacks({ traits: ['withComments'] }).map((cb) => cb()),
-    ['from withComments', 'from attrs']
+    ['from base', 'from withComments']
   );
 
   assert.equal(PostFactory.extractAfterCreateCallbacks({ traits: ['withComments', 'published'] }).length, 3);
   assert.deepEqual(
     PostFactory.extractAfterCreateCallbacks({ traits: ['withComments', 'published'] }).map((cb) => cb()),
-    ['from withComments', 'from published', 'from attrs']
+    ['from base', 'from withComments', 'from published']
   );
 
   assert.equal(PostFactory.extractAfterCreateCallbacks({ traits: ['withComments', 'otherTrait'] }).length, 2);
   assert.deepEqual(
     PostFactory.extractAfterCreateCallbacks({ traits: ['withComments', 'otherTrait'] }).map((cb) => cb()),
-    ['from withComments', 'from attrs']
+    ['from base', 'from withComments']
   );
 });
 
