@@ -451,6 +451,10 @@ class Model {
         .filter(association => association.getForeignKey() === foreignKeyName)[0];
 
       let found;
+      if (!association) {
+        console.log('association is undefined', this, foreignKeyName, foreignKeys);
+        debugger;
+      }
       if (association.isPolymorphic) {
         found = foreignKeys.map(({ type, id }) => {
           return this._schema.db[toCollectionName(type)].find(id);
